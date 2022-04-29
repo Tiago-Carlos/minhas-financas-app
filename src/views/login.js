@@ -2,17 +2,28 @@ import React from 'react'
 import { withRouter } from "react-router-dom";
 import Card from '../components/card'
 import FormGroup from '../components/form-group'
+import axios from 'axios';
 
 class Login extends React.Component {
 
     state = {
         email: '',
         senha: '',
+        mensagemErro: ''
     }
 
     entrar = () => {
-        console.log('Email: ', this.state.email)
-        console.log('Senha: ', this.state.senha)
+        // axios -> cliente http baseado em promises, é async
+        axios
+            .post("http://localhost:8080/api/usuarios/autenticar", {
+                email: this.state.email,
+                senha: this.state.senha
+            }).then ( response => {
+                localStorage.setItem('_usuario_logado', JSON.stringify(response.data))
+                this.props.history.push("/home")
+            }).catch ( erro => {
+                this.setState({mensagemErro: erro.response.data});
+            } )
     }
 
     prepareCadastrar = () => {
@@ -25,6 +36,9 @@ class Login extends React.Component {
                 <div className='col-md-6' style={{ position: 'relative', left: '300px' }}>
                     <div className='bs-docs-section'>
                         <Card title='login'>
+                            <div className='row'>
+                                <span>{this.state.mensagemErro}</span>
+                            </div>
                             <div className='col-lv-12'>
                                 <div className='bd-component'>
                                     <fieldset>
@@ -59,4 +73,4 @@ class Login extends React.Component {
 
 }
 
-export default withRouter( Login )
+export default withRouter(Login)
