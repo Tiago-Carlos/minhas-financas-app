@@ -1,7 +1,9 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
+import UsuarioService from "../app/service/usuarioService";
 import Card from "../components/card";
 import FormGroup from "../components/form-group";
+import { mensagemSucesso, mensagemErro } from "../components/toastr"
 
 class CadastroUsuario extends React.Component {
 
@@ -12,8 +14,56 @@ class CadastroUsuario extends React.Component {
         senhaRepeticao: ''
     }
 
+    constructor() {
+        super();
+        this.service = new UsuarioService();
+    }
+
+    validar() {
+        const msg = [];
+
+        if (!this.state.nome) {
+            msg.push("O campo nome é obrigatório.");
+        }
+        if (!this.state.email) {
+            msg.push("O campo email é obrigatório.");
+        } else if (!this.state.email.match(/^a-z0-9.]+@[a-z0-9]+\.[a-z]/)) {
+            msg.push("Informe um email válido.")
+        }
+
+        if (!this.state.senha) {
+            msg.push("Informe uma senha.")
+        }
+
+        if (this.state.senha !== this.state.senhaRepeticao) {
+            msg.push("As senhas informadas são diferentes.")
+        }
+        
+
+        return msg;
+    }
+
     cadastrar = () => {
-        console.log(this.state)
+        const msgs = this.validar();
+        if (msgs && msgs.length > 0){
+            msgs.forEach( (msg, index) => {
+                mensagemErro(msg)
+            })
+            return false;
+        }
+        const usuario = {
+            nome: this.state.nome,
+            email: this.state.email,
+            senha: this.state.senha
+        }
+
+        this.service.salvar(usuario)
+            .then(response => {
+                mensagemSucesso("Usuario criado com sucesso!");
+                this.props.history.push("/login")
+            }).catch (erro => {
+                mensagemErro(erro.response.data);
+            })
     }
 
     cancelar = () => {
