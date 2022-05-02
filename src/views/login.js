@@ -3,8 +3,9 @@ import { withRouter } from "react-router-dom";
 import Card from '../components/card'
 import FormGroup from '../components/form-group'
 import UsuarioService from '../app/service/usuarioService';
-import LocalStorageService from '../app/service/LocalStorageService';
 import { mensagemErro } from '../components/toastr';
+
+import {AuthContext} from '../main/provedorAutenticacao'
 
 class Login extends React.Component {
 
@@ -13,22 +14,21 @@ class Login extends React.Component {
         senha: ''
     }
 
-    constructor () {
+    constructor() {
         super();
         this.service = new UsuarioService();
     }
 
     entrar = () => {
-        // axios -> cliente http baseado em promises, é async
-        this.service.autenticar ({
-                email: this.state.email,
-                senha: this.state.senha
-            }).then ( response => {
-                LocalStorageService.adicionarItem ('_usuario_logado', JSON.stringify(response.data))
-                this.props.history.push("/home")
-            }).catch ( erro => {
-                mensagemErro(erro.response.data)
-            } )
+        this.service.autenticar({
+            email: this.state.email,
+            senha: this.state.senha
+        }).then(response => {
+            this.context.iniciarSessao(response.data)
+            this.props.history.push("/home")
+        }).catch(erro => {
+            mensagemErro(erro.response.data)
+        })
     }
 
     prepareCadastrar = () => {
@@ -51,7 +51,7 @@ class Login extends React.Component {
                                             <input type="email"
                                                 value={this.state.email}
                                                 onChange={e => this.setState({ email: e.target.value })}
-                                                class="form-control"
+                                                className="form-control"
                                                 id="exampleInputEmail1"
                                                 aria-describedby='emailHelp'
                                                 placeholder='Digite o email' />
@@ -64,8 +64,14 @@ class Login extends React.Component {
                                                 id="exampleInputPassword1"
                                                 placeholder='Password' />
                                         </FormGroup>
-                                        <button onClick={this.entrar} className='btn btn-success'>Entrar</button>
-                                        <button onClick={this.prepareCadastrar} className='btn btn-danger'>Cadastrar</button>
+                                        <button onClick={this.entrar}
+                                            className='btn btn-success'>
+                                            <i className='pi pi-sign-in' /> Entrar
+                                        </button>
+                                        <button onClick={this.prepareCadastrar}
+                                            className='btn btn-danger'>
+                                            <i className='pi pi-plus' /> Cadastrar
+                                        </button>
                                     </fieldset>
                                 </div>
                             </div>
@@ -77,5 +83,6 @@ class Login extends React.Component {
     }
 
 }
+Login.contextType = AuthContext
 
 export default withRouter(Login)
