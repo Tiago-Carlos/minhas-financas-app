@@ -65,7 +65,6 @@ class ConsultaLancamentos extends React.Component {
                 }
                 this.setState({ lancamentos: resposta.data })
             }).catch(error => {
-                //TODO
                 console.log(error)
             })
     }

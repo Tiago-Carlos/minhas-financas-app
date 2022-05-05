@@ -2,7 +2,8 @@ import axios from 'axios'
 
 const httpClient = axios.create(
     {
-        baseURL: "http://projeto-financas-api.herokuapp.com/"
+        baseURL: "http://localhost:8080",//"http://projeto-financas-api.herokuapp.com/"
+        withCredentials: true
     }
 )
 
@@ -12,20 +13,29 @@ class ApiService {
         this.apiurl = apiurl;
     }
 
-    post(url, objeto) {
-        return httpClient.post(`${this.apiurl}${url}`, objeto);
+    static registrarToken(token) {
+        if (token) {
+            httpClient.defaults.headers.common['Authorization'] = token
+        }
+    }
+    post(url, objeto){
+        const requestUrl = `${this.apiurl}${url}`
+        return httpClient.post(requestUrl, objeto);
     }
 
-    put(url, objeto) {
-        return httpClient.put(`${this.apiurl}${url}`, objeto);
+    put(url, objeto){
+        const requestUrl = `${this.apiurl}${url}`
+        return httpClient.put(requestUrl, objeto);
     }
 
-    delete(url) {
-        return httpClient.delete(`${this.apiurl}${url}`);
+    delete(url){
+        const requestUrl = `${this.apiurl}${url}`
+        return httpClient.delete(requestUrl)
     }
 
-    get(url) {
-        return httpClient.get(`${this.apiurl}${url}`);
+    get(url){
+        const requestUrl = `${this.apiurl}${url}`
+        return httpClient.get(requestUrl)
     }
 }
 

@@ -1,7 +1,7 @@
 class LocalStorageService {
     
     static adicionarItem(chave, valor) {
-        localStorage.setItem(chave, valor);
+        localStorage.setItem(chave, JSON.stringify(valor));
     }
 
     static obterItem(chave) {
