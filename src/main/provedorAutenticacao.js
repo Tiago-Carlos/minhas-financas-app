@@ -1,7 +1,7 @@
 import React from "react";
 import ApiService from "../app/apiservice";
 import AuthService from "../app/service/authService";
-import jwt from 'jwt-decode'
+import jwt from 'jsonwebtoken'
 export const AuthContext = React.createContext();
 export const AuthConsumer = AuthContext.Consumer;
 const AuthProvider = AuthContext.Provider;
@@ -9,17 +9,20 @@ const AuthProvider = AuthContext.Provider;
 class ProvedorAutenticacao extends React.Component {
     state = {
         usuarioAutenticado: null,
-        isAutenticado: false
+        isAutenticado: false,
+        isLoading: true
     }
     
     iniciarSessao = (tokenDTO) => {
         const token = tokenDTO.token
-        const claims = jwt(token);
+        const claims = jwt.decode(token);
+        console.log(claims)
         const usuario = {
-            id: claims.userid,
-            nome: claims.nome
+            id: tokenDTO.id,
+            nome: tokenDTO.nome
         }
-        ApiService.registrarToken(token);
+        console.log(usuario)
+        //ApiService.registrarToken(token);
         AuthService.logar(usuario, token);
         this.setState({isAutenticado: true, usuarioAutenticado:usuario})
     }
@@ -29,18 +32,30 @@ class ProvedorAutenticacao extends React.Component {
         this.setState( {isAutenticado: false, usuarioAutenticado: null} )
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const isAutenticado = AuthService.isUsuarioAutenticado()
         if (isAutenticado) {
-            const usuario = AuthService.refreshSession()
+            const usuario = await AuthService.refreshSession()
             this.setState({
                 isAutenticado: true,
                 usuarioAutenticado: usuario
             })
         }
+        else {
+            this.setState(previousState => {
+                return {
+                    ...previousState,
+                    isLoading: false
+                }
+            })
+        }
     }
 
     render () {
+        if (this.state.isLoading) {
+            return null;
+        }
+        
         const contexto = {
             usuarioAutenticado: this.state.usuarioAutenticado,
             isAutenticado: this.state.isAutenticado,

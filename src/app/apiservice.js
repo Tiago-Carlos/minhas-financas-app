@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const httpClient = axios.create(
     {
-        baseURL: "http://projeto-financas-api.herokuapp.com/",
+        baseURL: "http://localhost:8080/",
         withCredentials: true
     }
 )
@@ -15,7 +15,7 @@ class ApiService {
 
     static registrarToken(token) {
         if (token) {
-            httpClient.defaults.headers.common['Authorization'] = token
+            httpClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
         }
     }
     post(url, objeto){
